@@ -43,6 +43,7 @@ public class Player extends Actor
 
     public void act() 
     {
+        hit();
         if(inTheAir)
         {
             fall();
@@ -50,17 +51,16 @@ public class Player extends Actor
             getKey();
         }
         move();
-        if(Greenfoot.isKeyDown("left")){
+        if(Greenfoot.isKeyDown("a")){
             isLeft = true;
         }
-        if(Greenfoot.isKeyDown("right")){
+        if(Greenfoot.isKeyDown("d")){
             isLeft = false;
         }
         if(Greenfoot.mouseClicked(null)){
             if(isLeft) shoot(-4);
             else shoot(4);
         }
-        hit();
         pickUpCoins();
         checkForNewLife();
     }
@@ -69,10 +69,10 @@ public class Player extends Actor
         if(isLeft) getWorld().addObject(new Bullet(speed), getX()-getImage().getWidth()/2, getY());
         else getWorld().addObject(new Bullet(speed), getX()+getImage().getWidth()/2, getY());
     }
-    
-    private void run (String direction)
+
+    private void run ()
     {
-        if(direction == "left")
+        if(isLeft)
             dX = walkSpeed * -1;
         else
             dX = walkSpeed;
@@ -93,7 +93,7 @@ public class Player extends Actor
     {
         dY -= fallSpeed;
     }
-//checks for a platform and falls if it doesnt find one
+    //checks for a platform and falls if it doesnt find one
     private void move()
     {
         double newX = getX() + dX;
@@ -123,41 +123,50 @@ public class Player extends Actor
             fall();
         }
         setLocation((int) newX, (int) newY);
-
     }
-//checks for wich key is down
+    //checks for wich key is down
     private void getKey()
     {
-        if(Greenfoot.isKeyDown("left"))
+        if(Greenfoot.isKeyDown("a"))
         {
-            run("left");
+            run();
 
-        } else if (Greenfoot.isKeyDown("right"))
+        } else if (Greenfoot.isKeyDown("d"))
         {
-            run("right");
+            run();
         }else 
         {
             stop();
         }
-        if (Greenfoot.isKeyDown("up"))
+        if (Greenfoot.isKeyDown("w"))
         {
             jump();
         }
 
     }
+
     private void hit(){
         Enemy e = (Enemy) getOneIntersectingObject(Enemy.class);
         if(e!= null && invulnTime == 0){
             invulnTime = 45;
-            health--;
+            //health--;
             List <Life> lives = getObjectsInRange(700,Life.class);
             for(Life l : lives){
                 if(l.getLife() == health) getWorld().removeObject(l);
             }
             if(health == 0) Greenfoot.stop();
         }
+        if(invulnTime >40 && isLeft){
+            dY += 1;
+            dX += 2;
+        }
+        else if(invulnTime>40 && !isLeft){
+            dY +=1;
+            dX -=2;
+        }
         if(invulnTime > 0) invulnTime--;
     }
+
     private void pickUpCoins(){
         Coin c = (Coin) getOneIntersectingObject(Coin.class);
         if(c!= null){
@@ -165,9 +174,11 @@ public class Player extends Actor
             coins++;
         }
     }
+
     public int getCoins(){
         return coins;
     }
+
     private void checkForNewLife(){
         oldLife = ((lifeMult-1) * 10) + 1;
         if(oldLife == coins) gotLife = false;
@@ -178,12 +189,11 @@ public class Player extends Actor
                 if(l.getLife() == health - 1) {
                     getWorld().addObject(new Life(health), l.getX()+25, l.getY());
                 }
-                
+
             }
             health++;
             lifeMult++;
         }
     }
-    
 }
 

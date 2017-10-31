@@ -31,7 +31,7 @@ public class MyWorld extends World
         Platform bottom = new Platform(1, 400, 1);
         addObject(bottom, 300, 400);
         actCounter = new Counter("Coins: ");
-        addObject(actCounter, 100, 100);
+        addObject(actCounter, 520, 20);
         GreenfootImage image = bottom.getImage();
         int height = image.getHeight();
         image.scale(600,height);
