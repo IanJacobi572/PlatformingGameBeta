@@ -23,7 +23,7 @@ public class Enemy extends Actor
     public Enemy(int s){
         speed = s;
         plat = null;
-        
+
         stepsR = 0;
     }
 
@@ -38,14 +38,14 @@ public class Enemy extends Actor
 
     public void act() 
     {
-        setLocation(getX(), getY()+1);
+
         if(getX() > plat.getX()-pwidth/2 && stepsL < pwidth-getImage().getWidth()/2){
             move(-2);
             stepsL+=2;
             stepsR-=2;
             steps++;
-        }
-        else if(getX() < plat.getX()+pwidth/2 && stepsR < 0){
+
+        }else if(getX() < plat.getX()+pwidth/2 && stepsR < 0){
             move(2);
             //stepsL-=2;
             stepsR+=2;
@@ -56,7 +56,12 @@ public class Enemy extends Actor
             stepsR = 0;
             steps = 0;
         }
+        setLocation(getX(), getY()+1);
+        if (getY()-getImage().getHeight()/2 > 400){
+            getWorld().removeObject(plat);
+            getWorld().removeObject(this);
+            
+        }
 
-        
     }    
 }

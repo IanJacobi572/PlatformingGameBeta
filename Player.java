@@ -13,13 +13,20 @@ public class Player extends Actor
      * the 'Act' or 
      *'Run' button gets pressed in the environment.
      */
+
+    private int shootCount;
     private int jumpHeight = 15;
     private int walkSpeed = 5;
-    private double fallSpeed = 0.4;
+    private double fallSpeed = .4;
     private boolean inTheAir = false;
     private double dX = 0;
     private double dY = 0;
+    private boolean shootL;
+    private boolean shootR;
+    private boolean shootUp;
     private boolean isLeft;
+    private boolean canMoveL;
+    private boolean canMoveR;
     private int groundHeight = getImage().getHeight()/2;
     private int sideWidth = getImage().getWidth()/2;
     private World myWorld;
@@ -31,6 +38,7 @@ public class Player extends Actor
     int oldLife;
     boolean gotLife = false;
     int lifeMult = 1;
+
     public void addedToWorld(World myWorld)
     {
         this.myWorld = myWorld;
@@ -44,37 +52,57 @@ public class Player extends Actor
     public void act() 
     {
         hit();
+        move();
+        shootDirection();
         if(inTheAir)
         {
             fall();
+            //getKey();
         }else {
             getKey();
         }
-        move();
-        if(Greenfoot.isKeyDown("a")){
-            isLeft = true;
-        }
-        if(Greenfoot.isKeyDown("d")){
-            isLeft = false;
-        }
-        if(Greenfoot.mouseClicked(null)){
-            if(isLeft) shoot(-4);
-            else shoot(4);
-        }
         pickUpCoins();
         checkForNewLife();
+        shootCount++;
     }
 
-    private void shoot(int speed){
-        if(isLeft) getWorld().addObject(new Bullet(speed), getX()-getImage().getWidth()/2, getY());
-        else getWorld().addObject(new Bullet(speed), getX()+getImage().getWidth()/2, getY());
+    private void shoot(int speedX, int speedY){
+        if ( shootCount >= 25){
+
+            if(shootL){
+                setImage("wizL.png");
+                if(!shootUp){
+                    getWorld().addObject(new Bullet(speedX, speedY, true, false), getX()-getImage().getWidth()/2, getY());
+
+                }
+                else {
+                    getWorld().addObject(new Bullet(speedX, speedY, true, true), getX()-getImage().getWidth()/2, getY());
+                }
+            }
+            if (shootR){
+                setImage("wizR.png");
+                if(!shootUp){
+                    getWorld().addObject(new Bullet(speedX, speedY, true, false), getX()+getImage().getWidth()/2, getY());
+                }
+                else{
+                    getWorld().addObject(new Bullet(speedX, speedY, true, true), getX()+getImage().getWidth()/2, getY());
+                }
+                if(shootUp){}
+            }
+            if(shootUp && !shootL && !shootR){
+
+                getWorld().addObject(new Bullet(speedX, speedY, false, true), getX()+getImage().getWidth()/2, getY());
+
+            }
+            shootCount = 0;
+        }
     }
 
     private void run ()
     {
-        if(isLeft)
+        if(isLeft && canMoveL)
             dX = walkSpeed * -1;
-        else
+        else if(!isLeft && canMoveR)
             dX = walkSpeed;
     }
 
@@ -85,7 +113,7 @@ public class Player extends Actor
 
     private void jump()
     {
-        dY += jumpHeight;
+        dY= jumpHeight;
         inTheAir = true;
     }
 
@@ -103,7 +131,7 @@ public class Player extends Actor
         if (platBelow != null)
         {
             if (dY <0){
-                dY = 0;
+                dY = -1;
                 inTheAir = false;
                 GreenfootImage platImage = platBelow.getImage();
                 int topOfPlat = platBelow.getY()- platImage.getHeight()/2;
@@ -123,26 +151,60 @@ public class Player extends Actor
             fall();
         }
         setLocation((int) newX, (int) newY);
+
     }
     //checks for wich key is down
     private void getKey()
     {
-        if(Greenfoot.isKeyDown("a"))
+        if(Greenfoot.isKeyDown("A"))
         {
+            isLeft = true;
+            setImage("wizL.png");
             run();
-
-        } else if (Greenfoot.isKeyDown("d"))
+        } else if (Greenfoot.isKeyDown("D"))
         {
+            isLeft = false;
+            setImage("wizR.png");
             run();
         }else 
         {
             stop();
         }
-        if (Greenfoot.isKeyDown("w"))
+        if (Greenfoot.isKeyDown("space"))
         {
             jump();
         }
 
+    }
+
+    private void shootDirection(){
+        if(Greenfoot.isKeyDown("left")){
+            shootL = true;
+            shootR = false;
+            if(Greenfoot.isKeyDown("up")){
+                shootUp = true;
+                shoot(-4,4);
+            }
+            else shoot(-4, 0);
+            //shootUp = false;
+        }
+        else if(Greenfoot.isKeyDown("right")){
+            shootL = false;
+            shootR = true;
+            if(Greenfoot.isKeyDown("up")){
+                shootUp = true;
+                shoot(4,4);
+            }
+            else shoot(4, 0);
+        }
+
+        if(Greenfoot.isKeyDown("up")){
+            shootUp = true;
+            shootL = false;
+            shootR = false;
+            shoot(0, 4);
+        }
+        else shootUp = false;
     }
 
     private void hit(){
@@ -156,15 +218,21 @@ public class Player extends Actor
             }
             if(health == 0) Greenfoot.stop();
         }
-        if(invulnTime >40 && isLeft){
-            dY += 1;
+        if(invulnTime > 0) invulnTime--;
+        Enemy eR = (Enemy) getOneObjectAtOffset(6, -1,Enemy.class);
+        Enemy eL = (Enemy) getOneObjectAtOffset(-6, -1,Enemy.class);
+        if(eR != null){
+            canMoveR = false;
+            dX -= 2;
+        }
+        else if (eL != null){
+            canMoveL = false;
             dX += 2;
         }
-        else if(invulnTime>40 && !isLeft){
-            dY +=1;
-            dX -=2;
+        else {
+            canMoveR = true;
+            canMoveL = true;
         }
-        if(invulnTime > 0) invulnTime--;
     }
 
     private void pickUpCoins(){
@@ -195,5 +263,6 @@ public class Player extends Actor
             lifeMult++;
         }
     }
+
 }
 

@@ -13,11 +13,17 @@ public class Coin extends Actor
      * the 'Act' or 'Run' button gets pressed in the environment.
      */
     int speed;
+    
     public Coin(int s){
         speed = s;
     }
+
     public void act() 
     {
         setLocation(getX(), getY()+1);
+        if(getY() - getImage().getHeight()/2 >400)
+        {
+            getWorld().removeObject(this);
+        }
     }    
 }

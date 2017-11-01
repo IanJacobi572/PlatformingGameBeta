@@ -34,5 +34,6 @@ public class Platform extends Actor
             setLocation(X,Y+1);
         }
         timer++;
+       
     }    
 }
