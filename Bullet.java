@@ -14,33 +14,33 @@ public class Bullet extends Actor
      */
     int speedX;
     int speedY;
-    boolean directionX;
-    boolean directionY;
-    public Bullet(int sX, int sY, boolean dirX, boolean dirY)
+    public Bullet(int sX, int sY)
     {
         speedX = sX;
         speedY = sY;
-        directionX = dirX;
-        directionY = dirY;
     }
 
     public void act() 
     {
-        if(directionX && !directionY) move(speedX);
-        else if(directionY && !directionX) setLocation(getX(), getY()-speedY);
-        else if(directionX && directionY) setLocation(getX()+speedX, getY()-speedY);
-        hitEnemy();
-        if (getX()> 600 ){
+        
+        setLocation(getX()+speedX, getY()-speedY);
+        
+        
+        hitEnemyOrBounds();
+    }   
+
+    public void hitEnemyOrBounds(){
+        Enemy e = (Enemy) getOneIntersectingObject(Enemy.class);
+        if (e != null){
+            getWorld().addObject(new Coin(1), e.getX(), e.getY());
+            getWorld().removeObject(e);
+            
+            getWorld().removeObject(this);
+        }
+        else if (getX()> 600 ){
             getWorld().removeObject(this);
         } else if (getX() < 0){
-        getWorld().removeObject(this);
+            getWorld().removeObject(this);
         }
-        
-    }   
-    public void hitEnemy(){
-        Enemy e = (Enemy) getOneIntersectingObject(Enemy.class);
-    if (e != null){
-    getWorld().removeObject(e);
-    }
     }
 }
