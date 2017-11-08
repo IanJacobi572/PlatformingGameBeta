@@ -19,7 +19,7 @@ public class BossWorld extends World
         super(600, 400, 1, false); 
         addObject(new Platform(0, 0, 2), 450, 300);
         addObject(new Platform(0, 0, 2), 150, 300);
-        addObject(new Platform(0, 0, 5), 300, 400);
+        addObject(new Platform(0, 0, 5), 300, 395);
         addObject(new Platform(0, 0, 1.4), 300, 200);
         addObject(new Player(), 300, 130);
         addObject(new Boss(), 550, 150);
